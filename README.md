@@ -245,16 +245,6 @@ Configuration is handled through CLI parameters:
 - `--output-format`: Report format (csv/json/excel)
 - `--device`: CPU or CUDA/
 
-## 🤝 Contributing
-
-Feel free to improve the code! Some ideas:
-
-- Add video processing capability
-- Improve plate reading accuracy
-- Add visualization (draw boxes on images)
-- Create a web interface
-- Add support for multiple languages in plate reading
-
 ## 📄 License
 
 This project is for educational purposes.
