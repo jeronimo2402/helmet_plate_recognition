@@ -1,0 +1,28 @@
+[tool.poetry]
+name = "helmet-plate-recognition"
+version = "0.1.0"
+description = "Motorcycle helmet and license plate detection system"
+authors = ["Your Name <your.email@example.com>"]
+readme = "README.md"
+packages = [{include = "src"}]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+ultralytics = "^8.0.0"
+easyocr = "^1.7.0"
+opencv-python = "^4.6.0"
+pandas = "^2.0.0"
+torch = "^2.0.0"
+torchvision = "^0.15.0"
+numpy = "^1.23.0"
+matplotlib = "^3.3.0"
+roboflow = "^1.1.0"
+openpyxl = "^3.1.0" 
+
+[tool.poetry.group.dev.dependencies]
+jupyter = "^1.0.0"
+ipykernel = "^6.0.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
