@@ -247,4 +247,5 @@ Configuration is handled through CLI parameters:
 
 ## 📄 License
 
+
 This project is for educational purposes.
