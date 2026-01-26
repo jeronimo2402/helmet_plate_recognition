@@ -10,7 +10,7 @@ import cv2
 import os
 from pathlib import Path
 from src.core import HelmetDetector, PlateDetector, PlateReader, SpatialMatcher
-from src.utils import ReportGenerator
+from src.utils import ReportGenerator, ImageAnnotator
 
 
 def parse_arguments():
@@ -67,7 +67,19 @@ def parse_arguments():
         default=0.25,
         help='Minimum detection confidence (0-1)'
     )
-    
+    parser.add_argument(
+        '--save-images',
+        action='store_true',
+        default=True,
+        help='Save annotated images showing violations and plate matches (default: enabled)'
+    )
+    parser.add_argument(
+        '--no-save-images',
+        action='store_false',
+        dest='save_images',
+        help='Disable saving annotated images'
+    )
+
     return parser.parse_args()
 
 
@@ -95,7 +107,8 @@ def process_single_image(
     if not people:
         return []
     
-    # Step 2: Detect all license plates in the image
+    # Step 2: Detect all license plates in the full image
+    # Run independently, then spatial matcher will associate plates with people
     all_plates = plate_detector.detect_all_plates(image)
     print(f"Found {len(all_plates)} license plates")
     
@@ -133,7 +146,9 @@ def process_single_image(
             'detection_confidence': person['detection_confidence'],
             'license_plate': plate_text,
             'plate_confidence': plate_confidence,
-            'plate_matched': person['plate_matched']
+            'plate_matched': person['plate_matched'],
+            'person_box': person['bounding_box_coordinates'],
+            'matched_plate_box': person['matched_plate'] if person['plate_matched'] else None
         })
     
     print(f"Summary: {violations} violations, {len(people) - violations} compliant")
@@ -175,7 +190,12 @@ def main():
     )
     
     report_generator = ReportGenerator()
-    
+
+    image_annotator = None
+    if args.save_images:
+        image_annotator = ImageAnnotator()
+        print("Image annotation enabled")
+
     print("Models loaded successfully")
     
     # Process images
@@ -190,6 +210,20 @@ def main():
             plate_reader,
             spatial_matcher
         )
+
+        # Save annotated image if enabled and add path to results
+        annotated_path = None
+        if image_annotator and results:
+            annotated_path = image_annotator.annotate_and_save(
+                args.image, results, helmet_detector
+            )
+            if annotated_path:
+                print(f"Annotated image saved: {annotated_path}")
+
+        # Add annotated image path to each result
+        for result in results:
+            result['annotated_image'] = annotated_path if annotated_path else ''
+
         all_results.extend(results)
     
     elif args.folder:
@@ -211,6 +245,20 @@ def main():
                 plate_reader,
                 spatial_matcher
             )
+
+            # Save annotated image if enabled and add path to results
+            annotated_path = None
+            if image_annotator and results:
+                annotated_path = image_annotator.annotate_and_save(
+                    image_path, results, helmet_detector
+                )
+                if annotated_path:
+                    print(f"Annotated image saved: {annotated_path}")
+
+            # Add annotated image path to each result
+            for result in results:
+                result['annotated_image'] = annotated_path if annotated_path else ''
+
             all_results.extend(results)
     
     # Generate report

@@ -75,7 +75,21 @@ def parse_arguments():
         type=str,
         help='Path to existing plate dataset (if skip-download)'
     )
-    
+
+    parser.add_argument(
+        '--merge-plate-datasets',
+        action='store_true',
+        default=True,
+        help='Download and merge multiple plate datasets for better detection (default: enabled)'
+    )
+
+    parser.add_argument(
+        '--no-merge-plate-datasets',
+        action='store_false',
+        dest='merge_plate_datasets',
+        help='Use only the original bike plate dataset (not recommended)'
+    )
+
     return parser.parse_args()
 
 
@@ -112,7 +126,12 @@ def main():
             helmet_yaml = os.path.join(helmet_data_path, 'data.yaml')
         
         if args.mode in ['plate', 'both']:
-            plate_data_path = downloader.download_plate_dataset()
+            if args.merge_plate_datasets:
+                # Download and merge both plate datasets for better detection
+                plate_data_path = downloader.download_and_merge_plate_datasets()
+            else:
+                # Use only the original bike plate dataset
+                plate_data_path = downloader.download_plate_dataset()
             plate_yaml = os.path.join(plate_data_path, 'data.yaml')
     else:
         # Use provided dataset paths

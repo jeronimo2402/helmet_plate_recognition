@@ -4,18 +4,16 @@
 
 ### Step 1: Environment Setup
 
-#### Install Dependencies with Poetry
-
+Install poetry if you don't already have it, then run:
 ```bash
-# Install Poetry if you don't have it
-curl -sSL https://install.python-poetry.org | python3 -
-
-# Install project dependencies
 poetry install
-
-# Activate the virtual environment
-poetry shell
 ```
+
+Add the following to your .env file: 
+"
+RUNS_PATH=./runs
+DATA_PATH=./data
+"
 
 ### Step 2: Get Roboflow API Key
 
@@ -23,6 +21,7 @@ poetry shell
 2. Sign up/login
 3. Navigate to Settings → API
 4. Copy your API key
+5. Put it in a .env file on the root directory as: "ROBOFLOW_API_KEY=<your key>"
 
 ### Step 3: Train Models
 
