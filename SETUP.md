@@ -9,6 +9,11 @@ Install poetry if you don't already have it, then run:
 poetry install
 ```
 
+Also install flask if you dont have it yet to run the frontend page
+```bash
+pip install flask
+```
+
 Add the following to your .env file: 
 "
 RUNS_PATH=./runs
@@ -33,8 +38,8 @@ python train.py --mode both --epochs 50 --device cpu
 
 This will:
 
-- Download helmet dataset (351 images)
-- Download plate dataset (620 images)
+- Download helmet dataset
+- Download plate datasets
 - Train helmet detector (~30-40 min on CPU)
 - Train plate detector (~25-35 min on CPU)
 - Save models to `runs/detect/`
@@ -42,7 +47,20 @@ This will:
 #### Option B: Fast Training (GPU)
 
 ```bash
+#basic training
 python train.py --mode both --epochs 50 --device cuda
+
+#Advanced plate training
+
+# Train plate model with medium augmentation (default)
+python train.py --mode plate --epochs 50 --device cuda
+
+# Train with heavy augmentation
+python train.py --mode plate --augment-level heavy --epochs 100 --device cuda
+
+# Train without augmentation (not recommended)
+python train.py --mode plate --no-augment --device cuda
+
 ```
 
 Much faster (~5-10 min per model)

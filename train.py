@@ -90,6 +90,28 @@ def parse_arguments():
         help='Use only the original bike plate dataset (not recommended)'
     )
 
+    parser.add_argument(
+        '--augment',
+        action='store_true',
+        default=True,
+        help='Enable data augmentation for plate model (default: enabled)'
+    )
+
+    parser.add_argument(
+        '--no-augment',
+        action='store_false',
+        dest='augment',
+        help='Disable data augmentation for plate model'
+    )
+
+    parser.add_argument(
+        '--augment-level',
+        type=str,
+        choices=['light', 'medium', 'heavy'],
+        default='medium',
+        help='Augmentation intensity: light, medium, or heavy (default: medium)'
+    )
+
     return parser.parse_args()
 
 
@@ -165,7 +187,9 @@ def main():
         results['plate'] = trainer.train_plate_model(
             plate_yaml,
             epochs=args.epochs,
-            batch_size=args.batch_size
+            batch_size=args.batch_size,
+            augment=args.augment,
+            augment_level=args.augment_level
         )
     
     elif args.mode == 'both':
@@ -176,7 +200,9 @@ def main():
             helmet_yaml,
             plate_yaml,
             epochs=args.epochs,
-            batch_size=args.batch_size
+            batch_size=args.batch_size,
+            plate_augment=args.augment,
+            plate_augment_level=args.augment_level
         )
     
     # Print final summary
