@@ -2,7 +2,7 @@
 
 A complete AI-powered system for detecting helmet violations and reading license plates from motorcycle riders, with intelligent spatial matching to correctly pair each person with their vehicle.
 
-## ✨ Features
+## Features
 
 ### Core Capabilities
 
@@ -19,7 +19,7 @@ A complete AI-powered system for detecting helmet violations and reading license
 - **Production-Ready Inference**: Optimized prediction pipeline with CLI
 - **Batch Processing**: Handle single images or entire folders
 
-## 🏗️ Project Structure
+## Project Structure
 
 ```text
 helmet_plate_recognition/
@@ -50,7 +50,7 @@ helmet_plate_recognition/
 └── poetry.lock                  # Locked dependencies
 ```
 
-## � Installation
+## Installation
 
 ### Install Dependencies with Poetry
 
@@ -65,7 +65,7 @@ poetry install
 poetry shell
 ```
 
-## 📦 Required Models
+## Required Models
 
 Before running the program, you need:
 
@@ -77,7 +77,7 @@ Before running the program, you need:
    - Can use pre-trained YOLO models
    - Or train your own on a plate dataset
 
-## 🎯 How to Use
+## How to Use
 
 ### Option 1: Process a Single Image
 
@@ -123,33 +123,50 @@ Change this in `main.py`:
 report_path = process_single_image(image_path, output_format='csv')
 ```
 
-## 📊 Report Contents
+## Report Contents
 
 The generated report includes:
 
-| Column | Description |
-|--------|-------------|
+| Column                 | Description                              |
+|------------------------|------------------------------------------|
+| `image_file`           | Name of the image file                   |
+| `person_id`            | Person ID (1, 2, 3, etc.)                |
+| `has_helmet`           | True if person has helmet, False if not  |
+| `license_plate`        | Plate number (or "NO_PLATE_DETECTED")    |
+| `detection_confidence` | How confident the AI is (0.0 to 1.0)     |
 
-| `image_file` | Name of the image file |
-| `has_helmet` | True if person has helmet, False if not |
-| `license_plate` | Plate number (or "NO_PLATE_DETECTED") |
-| `detection_confidence` | How confident the AI is (0.0 to 1.0) |
+## Training Your Models
 
-## 🔧 Training Your Models
+### Prerequisites
 
-### Train Helmet Detector
+1. Get your Roboflow API key from [Roboflow](https://roboflow.com/)
+2. Add it to your `.env` file:
 
-1. Open `notebooks/01_train_helmet_detector.ipynb`
-2. Run all cells to train the model
-3. Copy the trained model from `runs/detect/helmet_detector/weights/best.pt` to `models/helmet_model.pt`
+   ```bash
+   ROBOFLOW_API_KEY="your_key_here"
+   ```
 
-### Train Plate Detector (Optional)
+### Train helmet and plate models with CPU or GPU
 
-1. Get a license plate dataset (e.g., from Roboflow)
-2. Create a training notebook similar to the helmet one
-3. Save the trained model to `models/plate_model.pt`
+```bash
+poetry run python train.py --mode both --epochs 50 --device cpu
 
-## 📚 Understanding the Code
+poetry run python train.py --mode both --epochs 50 --device cuda
+```
+
+### Only helmet detector
+
+```bash
+poetry run python train.py --mode helmet --epochs 50
+```
+
+### Only plate detector
+
+```bash
+poetry run python train.py --mode plate --epochs 50
+```
+
+## Understanding the Code
 
 ### Variable Names Explanation
 
@@ -173,7 +190,7 @@ All variable names are designed to be self-explanatory:
 
 **`report_generator.py`**: Collects all information and saves it as a file
 
-## 🛠️ Common Commands
+### Common Commands
 
 ```bash
 # Install dependencies
@@ -198,9 +215,9 @@ poetry run jupyter notebook
 exit
 ```
 
-## 🐛 Troubleshooting
+### Troubleshooting
 
-### "No module named 'src'"
+#### "No module named 'src'"
 
 Make sure you're in the project root folder and run:
 
@@ -208,7 +225,7 @@ Make sure you're in the project root folder and run:
 poetry install
 ```
 
-### "Could not load image"
+#### "Could not load image"
 
 Check that:
 
@@ -216,7 +233,7 @@ Check that:
 - Path in `main.py` is correct
 - Image format is supported (.jpg, .png, .jpeg, .bmp)
 
-### "Model not found"
+#### "Model not found"
 
 Make sure you have:
 
@@ -224,19 +241,19 @@ Make sure you have:
 - Copied it to `models/helmet_model.pt`
 - Path is correct in the code
 
-### EasyOCR is slow on first run
+#### EasyOCR is slow on first run
 
 EasyOCR downloads language models on first use. This is normal and only happens once.
 
-## 📝 Next Steps
+## Next Steps
 
-1. ✅ Train your helmet detection model using the notebook
-2. ✅ Copy the trained model to `models/` folder
-3. ✅ Put test images in `data/` folder
-4. ✅ Run `main.py` to process images
-5. ✅ Check the generated report in `outputs/reports/`
+1. Train your helmet detection model using the notebook
+2. Copy the trained model to `models/` folder
+3. Put test images in `data/` folder
+4. Run `main.py` to process images
+5. Check the generated report in `outputs/reports/`
 
-## 🔧 Configuration
+## Configuration
 
 Configuration is handled through CLI parameters:
 
@@ -245,7 +262,6 @@ Configuration is handled through CLI parameters:
 - `--output-format`: Report format (csv/json/excel)
 - `--device`: CPU or CUDA/
 
-## 📄 License
-
+## License
 
 This project is for educational purposes.

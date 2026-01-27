@@ -12,6 +12,13 @@ from flask import Flask, render_template, request, send_file, jsonify, url_for
 from werkzeug.utils import secure_filename
 from src.core import HelmetDetector, PlateDetector, PlateReader, SpatialMatcher
 from src.utils import ReportGenerator, ImageAnnotator
+import argparse
+
+# # Parse command line arguments
+# parser = argparse.ArgumentParser()
+# parser.add_argument('--device', type=str, default='cpu', choices=['cpu', 'cuda'])
+# args = parser.parse_args()
+# DEVICE = args.device
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = 'uploads'
@@ -47,19 +54,19 @@ def load_models():
 
     helmet_detector = HelmetDetector(
         'models/helmet_model.pt',
-        device='cpu',
+        device='cuda',
         confidence_threshold=0.25
     )
 
     plate_detector = PlateDetector(
         'models/plate_model.pt',
-        device='cpu',
+        device='cuda',
         confidence_threshold=0.25
     )
 
     plate_reader = PlateReader(
         supported_languages=['en'],
-        gpu=False
+        gpu=True
     )
 
     spatial_matcher = SpatialMatcher(

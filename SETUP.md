@@ -48,18 +48,21 @@ This will:
 
 ```bash
 #basic training
-python train.py --mode both --epochs 50 --device cuda
+poetry run python train.py --mode both --epochs 50 --device cuda
 
 #Advanced plate training
 
+# Train helmet model with medium augmentation (default)
+poetry run python train.py --mode helmet --epochs 50 --device cuda
+
 # Train plate model with medium augmentation (default)
-python train.py --mode plate --epochs 50 --device cuda
+poetry run python train.py --mode plate --epochs 50 --device cuda
 
 # Train with heavy augmentation
-python train.py --mode plate --augment-level heavy --epochs 100 --device cuda
+poetry run python train.py --mode plate --augment-level heavy --epochs 100 --device cuda
 
 # Train without augmentation (not recommended)
-python train.py --mode plate --no-augment --device cuda
+poetry run python train.py --mode plate --no-augment --device cuda
 
 ```
 
@@ -90,7 +93,7 @@ cp /path/to/your/test_image.jpg data/test.jpg
 #### Run Prediction
 
 ```bash
-python predict.py --image data/test.jpg
+poetry run python predict.py --image data/test.jpg --device cuda
 ```
 
 You should see:
