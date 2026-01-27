@@ -28,9 +28,7 @@ def main():
     print(f"\nImage: {args.image}")
     print(f"Image size: {image.shape[1]}x{image.shape[0]} pixels")
 
-    # ========================================
     # STEP 1: Helmet Detection
-    # ========================================
     print(f"\n{'='*60}")
     print("STEP 1: HELMET DETECTION")
     print(f"{'='*60}")
@@ -59,9 +57,7 @@ def main():
         print("No people detected! Stopping.")
         return
 
-    # ========================================
     # STEP 2: Two-Stage Plate Detection
-    # ========================================
     print(f"\n{'='*60}")
     print("STEP 2: TWO-STAGE PLATE DETECTION")
     print(f"{'='*60}")
@@ -99,7 +95,7 @@ def main():
         print(f"  Cropped array shape: {cropped_region.shape}")
 
         # Save the crop for inspection
-        crop_filename = f"debug_crop_person{i+1}.jpg"
+        crop_filename = f"src/tests/results/debug_crop_person{i+1}.jpg"
         cv2.imwrite(crop_filename, cropped_region)
         print(f"  Saved crop to: {crop_filename}")
 
@@ -129,9 +125,7 @@ def main():
     print(f"TOTAL PLATES FOUND: {len(all_plates)}")
     print(f"{'='*60}")
 
-    # ========================================
     # STEP 3: Also test full image detection
-    # ========================================
     print(f"\n{'='*60}")
     print("COMPARISON: FULL IMAGE PLATE DETECTION")
     print(f"{'='*60}")

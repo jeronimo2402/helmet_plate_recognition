@@ -6,4 +6,5 @@ from .image_annotator import ImageAnnotator
 __all__ = [
     'ReportGenerator',
     'ImageAnnotator',
+    'TrainingAnalyzer'
 ]

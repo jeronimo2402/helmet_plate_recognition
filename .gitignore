@@ -42,7 +42,7 @@ models/*.onnx
 
 # Data (images and videos can be large)
 data/*
-!data/.gitkeep
+!data/test_data/
 
 # Outputs
 outputs/*

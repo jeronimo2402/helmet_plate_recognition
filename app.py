@@ -12,17 +12,10 @@ from flask import Flask, render_template, request, send_file, jsonify, url_for
 from werkzeug.utils import secure_filename
 from src.core import HelmetDetector, PlateDetector, PlateReader, SpatialMatcher
 from src.utils import ReportGenerator, ImageAnnotator
-import argparse
-
-# # Parse command line arguments
-# parser = argparse.ArgumentParser()
-# parser.add_argument('--device', type=str, default='cpu', choices=['cpu', 'cuda'])
-# args = parser.parse_args()
-# DEVICE = args.device
 
 app = Flask(__name__)
-app.config['UPLOAD_FOLDER'] = 'uploads'
-app.config['OUTPUT_FOLDER'] = 'outputs/web'
+app.config['UPLOAD_FOLDER'] = 'templates/uploads'
+app.config['OUTPUT_FOLDER'] = 'outputs/web_reports'
 app.config['MAX_CONTENT_LENGTH'] = 50 * 1024 * 1024  # 50MB max
 
 # Create necessary folders

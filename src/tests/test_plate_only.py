@@ -51,8 +51,8 @@ def main():
             print(f"  Detection {i+1}: class={cls}, conf={conf:.3f}, box=[{x1:.0f},{y1:.0f},{x2:.0f},{y2:.0f}], size={w:.0f}x{h:.0f}px")
 
     # Save annotated result
-    results[0].save('plate_test_result.jpg')
-    print(f"\nAnnotated image saved to: plate_test_result.jpg")
+    results[0].save('src/tests/results/plate_test_result.jpg')
+    print(f"\nAnnotated image saved to: src/tests/results/plate_test_result.jpg")
 
     # Also test with lower confidence to see if model detects ANYTHING
     if len(results[0].boxes) == 0:
