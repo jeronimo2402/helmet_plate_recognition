@@ -90,12 +90,12 @@ class ModelTrainer:
             **kwargs
         )
         
-        # Get paths to saved models
-        run_dir = Path(self.output_dir) / model_name
+        run_dir = Path(results.save_dir)
         best_model_path = run_dir / 'weights' / 'best.pt'
         last_model_path = run_dir / 'weights' / 'last.pt'
         
         print(f"\nTraining completed!")
+        print(f"   Run directory: {run_dir}")
         print(f"   Best model: {best_model_path}")
         print(f"   Last model: {last_model_path}")
         
@@ -239,11 +239,12 @@ class ModelTrainer:
             **train_config
         )
         
-        run_dir = Path(self.output_dir) / model_name
+        run_dir = Path(results.save_dir)
         best_model_path = run_dir / 'weights' / 'best.pt'
         last_model_path = run_dir / 'weights' / 'last.pt'
         
         print(f"\nTraining completed!")
+        print(f"   Run directory: {run_dir}")
         print(f"   Best model: {best_model_path}")
         print(f"   Last model: {last_model_path}")
         

@@ -207,43 +207,34 @@ def main():
             plate_augment_level=args.augment_level
         )
     
-    # Print final summary
-    print("\n" + "="*70)
-    print("  TRAINING COMPLETE")
-    print("="*70)
-    
-    if 'helmet' in results:
-        print(f"\n Helmet Model:")
-        print(f"   Best: {results['helmet']['best_model_path']}")
-        print(f"   Last: {results['helmet']['last_model_path']}")
-    
-    if 'plate' in results:
-        print(f"\n Plate Model:")
-        print(f"   Best: {results['plate']['best_model_path']}")
-        print(f"   Last: {results['plate']['last_model_path']}")
-    
     if args.mode in ['helmet', 'both']:
         print("\n Analyzing Helmet Detector Training...")
-        helmet_csv = Path(args.runs_dir) / 'helmet_detector' / 'results.csv'
+        helmet_run_dir = Path(results['helmet']['run_directory'])
+        helmet_csv = helmet_run_dir / 'results.csv'
         if helmet_csv.exists():
             analyze_training(
                 str(helmet_csv),
-                str(Path(args.runs_dir) / 'helmet_detector' / 'analysis')
+                str(helmet_run_dir / 'analysis')
             )
         else:
             print(f"  Helmet results not found: {helmet_csv}")
     
     if args.mode in ['plate', 'both']:
         print("\n Analyzing Plate Detector Training...")
-        plate_csv = Path(args.runs_dir) / 'plate_detector' / 'results.csv'
+        plate_run_dir = Path(results['plate']['run_directory'])
+        plate_csv = plate_run_dir / 'results.csv'
         if plate_csv.exists():
             analyze_training(
                 str(plate_csv),
-                str(Path(args.runs_dir) / 'plate_detector' / 'analysis')
+                str(plate_run_dir / 'analysis')
             )
         else:
             print(f"  Plate results not found: {plate_csv}")
 
+    # Print final summary
+    print("\n" + "="*70)
+    print("  TRAINING COMPLETE")
+    print("="*70)
     print("\n Next steps:")
     print("   1. Copy trained models to models/ directory:")
     if 'helmet' in results:
