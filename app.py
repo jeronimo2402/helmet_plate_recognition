@@ -6,11 +6,10 @@ Access at: http://localhost:5000
 
 import os
 import uuid
-import cv2
 from datetime import datetime
 from flask import Flask, render_template, request, send_file, jsonify, url_for
 from werkzeug.utils import secure_filename
-from src.core import HelmetDetector, PlateDetector, PlateReader, SpatialMatcher
+from src.core import HelmetDetector, PlateDetector, PlateReader, SpatialMatcher, ImageProcessor
 from src.utils import ReportGenerator, ImageAnnotator
 
 app = Flask(__name__)
@@ -31,6 +30,7 @@ helmet_detector = None
 plate_detector = None
 plate_reader = None
 spatial_matcher = None
+image_processor = None
 image_annotator = None
 report_generator = None
 
@@ -41,7 +41,7 @@ def allowed_file(filename):
 
 def load_models():
     """Load all models (called once at startup)."""
-    global helmet_detector, plate_detector, plate_reader, spatial_matcher, image_annotator, report_generator
+    global helmet_detector, plate_detector, plate_reader, spatial_matcher, image_processor, image_annotator, report_generator
 
     print("Loading models...")
 
@@ -67,6 +67,13 @@ def load_models():
         vertical_overlap_threshold=50
     )
 
+    image_processor = ImageProcessor(
+        helmet_detector,
+        plate_detector,
+        plate_reader,
+        spatial_matcher
+    )
+
     image_annotator = ImageAnnotator()
     report_generator = ReportGenerator(output_folder_path=os.path.join(app.config['OUTPUT_FOLDER'], 'reports'))
 
@@ -75,46 +82,13 @@ def load_models():
 
 def process_image(image_path, session_id):
     """Process a single image and return results."""
-    image = cv2.imread(image_path)
-    if image is None:
+    results = image_processor.process_single_image(image_path, verbose=False)
+    
+    if results is None:
         return None, None
-
-    # Detect people with/without helmets
-    people = helmet_detector.detect_helmets_in_image(image_path)
-    if not people:
+    
+    if not results:
         return [], None
-
-    # Detect all license plates
-    all_plates = plate_detector.detect_all_plates(image)
-
-    # Match people to plates
-    matched_detections = spatial_matcher.match_people_to_plates(people, all_plates)
-
-    # Read plate text and build results
-    results = []
-    for idx, person in enumerate(matched_detections, 1):
-        has_helmet = helmet_detector.person_has_helmet(person['helmet_status'])
-
-        plate_text = "NO_PLATE_MATCHED"
-        plate_confidence = 0.0
-
-        if person['plate_matched']:
-            plate_text, plate_confidence = plate_reader.read_text_from_plate(
-                image, person['matched_plate']
-            )
-
-        results.append({
-            'image_file': os.path.basename(image_path),
-            'person_id': idx,
-            'has_helmet': has_helmet,
-            'helmet_status': helmet_detector.get_class_name(person['helmet_status']),
-            'detection_confidence': person['detection_confidence'],
-            'license_plate': plate_text,
-            'plate_confidence': plate_confidence,
-            'plate_matched': person['plate_matched'],
-            'person_box': person['bounding_box_coordinates'],
-            'matched_plate_box': person['matched_plate'] if person['plate_matched'] else None
-        })
 
     # Generate annotated image
     annotated_path = None

@@ -6,10 +6,9 @@ Usage:
 """
 
 import argparse
-import cv2
 import os
 from pathlib import Path
-from src.core import HelmetDetector, PlateDetector, PlateReader, SpatialMatcher
+from src.core import HelmetDetector, PlateDetector, PlateReader, SpatialMatcher, ImageProcessor
 from src.utils import ReportGenerator, ImageAnnotator
 
 
@@ -83,103 +82,6 @@ def parse_arguments():
     return parser.parse_args()
 
 
-def process_single_image(
-    image_path: str,
-    helmet_detector: HelmetDetector,
-    plate_detector: PlateDetector,
-    plate_reader: PlateReader,
-    spatial_matcher: SpatialMatcher
-) -> list:
-    """Process a single image and return detections."""
-    
-    print(f"\n Processing: {os.path.basename(image_path)}")
-    
-    # Load image
-    image = cv2.imread(image_path)
-    if image is None:
-        print(f"Could not load image: {image_path}")
-        return []
-    
-    # Step 1: Detect all people (with/without helmets)
-    people = helmet_detector.detect_helmets_in_image(image_path)
-    print(f"Found {len(people)} people")
-    
-    if not people:
-        return []
-    
-    # Stage 1: Detect plates in full image
-    full_image_plates = plate_detector.detect_all_plates(image)
-    
-    # Stage 2: Detect plates in cropped regions around each person
-    # This helps detect small/distant plates by "zooming in"
-    cropped_region_plates = plate_detector.detect_plates_around_people(
-        image, people, expand_ratio=1.5, extend_below=2.0
-    )
-    
-    # Combine both detection results (remove duplicates)
-    all_plates = full_image_plates + cropped_region_plates
-    
-    # Remove duplicate plates (within 20 pixels tolerance)
-    unique_plates = []
-    for plate in all_plates:
-        is_duplicate = False
-        for existing in unique_plates:
-            if (abs(plate[0] - existing[0]) < 20 and 
-                abs(plate[1] - existing[1]) < 20 and
-                abs(plate[2] - existing[2]) < 20 and
-                abs(plate[3] - existing[3]) < 20):
-                is_duplicate = True
-                break
-        if not is_duplicate:
-            unique_plates.append(plate)
-    
-    all_plates = unique_plates
-    print(f"Found {len(all_plates)} license plates (full: {len(full_image_plates)}, cropped: {len(cropped_region_plates)})")
-    
-    # Step 3: Match each person to their plate using spatial matching
-    matched_detections = spatial_matcher.match_people_to_plates(people, all_plates)
-    
-    # Step 4: Read text from matched plates
-    results = []
-    violations = 0
-    
-    for idx, person in enumerate(matched_detections, 1):
-        has_helmet = helmet_detector.person_has_helmet(person['helmet_status'])
-        
-        plate_text = "NO_PLATE_MATCHED"
-        plate_confidence = 0.0
-        
-        if person['plate_matched']:
-            plate_text, plate_confidence = plate_reader.read_text_from_plate(
-                image,
-                person['matched_plate']
-            )
-        
-        # Count violations
-        if not has_helmet:
-            violations += 1
-            print(f"Person #{idx}: VIOLATION (no helmet) - Plate: {plate_text}")
-        else:
-            print(f"Person #{idx}: Compliant (helmet) - Plate: {plate_text}")
-        
-        results.append({
-            'image_file': os.path.basename(image_path),
-            'person_id': idx,
-            'has_helmet': has_helmet,
-            'helmet_status': helmet_detector.get_class_name(person['helmet_status']),
-            'detection_confidence': person['detection_confidence'],
-            'license_plate': plate_text,
-            'plate_confidence': plate_confidence,
-            'plate_matched': person['plate_matched'],
-            'person_box': person['bounding_box_coordinates'],
-            'matched_plate_box': person['matched_plate'] if person['plate_matched'] else None
-        })
-    
-    print(f"Summary: {violations} violations, {len(people) - violations} compliant")
-    
-    return results
-
-
 def main():
     """Main prediction function."""
     args = parse_arguments()
@@ -213,6 +115,13 @@ def main():
         vertical_overlap_threshold=50
     )
     
+    image_processor = ImageProcessor(
+        helmet_detector,
+        plate_detector,
+        plate_reader,
+        spatial_matcher
+    )
+    
     report_generator = ReportGenerator()
 
     image_annotator = None
@@ -227,13 +136,7 @@ def main():
     
     if args.image:
         # Single image mode
-        results = process_single_image(
-            args.image,
-            helmet_detector,
-            plate_detector,
-            plate_reader,
-            spatial_matcher
-        )
+        results = image_processor.process_single_image(args.image)
 
         # Save annotated image if enabled and add path to results
         annotated_path = None
@@ -262,13 +165,7 @@ def main():
         
         for image_file in image_files:
             image_path = os.path.join(args.folder, image_file)
-            results = process_single_image(
-                image_path,
-                helmet_detector,
-                plate_detector,
-                plate_reader,
-                spatial_matcher
-            )
+            results = image_processor.process_single_image(image_path)
 
             # Save annotated image if enabled and add path to results
             annotated_path = None
