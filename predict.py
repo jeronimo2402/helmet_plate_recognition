@@ -107,10 +107,34 @@ def process_single_image(
     if not people:
         return []
     
-    # Step 2: Detect all license plates in the full image
-    # Run independently, then spatial matcher will associate plates with people
-    all_plates = plate_detector.detect_all_plates(image)
-    print(f"Found {len(all_plates)} license plates")
+    # Stage 1: Detect plates in full image
+    full_image_plates = plate_detector.detect_all_plates(image)
+    
+    # Stage 2: Detect plates in cropped regions around each person
+    # This helps detect small/distant plates by "zooming in"
+    cropped_region_plates = plate_detector.detect_plates_around_people(
+        image, people, expand_ratio=1.5, extend_below=2.0
+    )
+    
+    # Combine both detection results (remove duplicates)
+    all_plates = full_image_plates + cropped_region_plates
+    
+    # Remove duplicate plates (within 20 pixels tolerance)
+    unique_plates = []
+    for plate in all_plates:
+        is_duplicate = False
+        for existing in unique_plates:
+            if (abs(plate[0] - existing[0]) < 20 and 
+                abs(plate[1] - existing[1]) < 20 and
+                abs(plate[2] - existing[2]) < 20 and
+                abs(plate[3] - existing[3]) < 20):
+                is_duplicate = True
+                break
+        if not is_duplicate:
+            unique_plates.append(plate)
+    
+    all_plates = unique_plates
+    print(f"Found {len(all_plates)} license plates (full: {len(full_image_plates)}, cropped: {len(cropped_region_plates)})")
     
     # Step 3: Match each person to their plate using spatial matching
     matched_detections = spatial_matcher.match_people_to_plates(people, all_plates)

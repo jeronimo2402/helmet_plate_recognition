@@ -149,6 +149,10 @@ class SpatialMatcher:
         """
         Match multiple people to their corresponding license plates.
         
+        Uses greedy assignment: for each person, find the best matching plate
+        that hasn't been assigned yet. This prevents multiple people from
+        being matched to the same plate.
+        
         Args:
             people_boxes: List of dicts with person info including 'bounding_box'
             plate_boxes: List of all detected plate bounding boxes
@@ -157,17 +161,63 @@ class SpatialMatcher:
             List of people with their matched plates added
         """
         results = []
+        available_plates = plate_boxes.copy()  # Track unassigned plates
+        
+        # Create list of (person, best_plate, distance) tuples
+        person_plate_distances = []
         
         for person in people_boxes:
             person_box = person['bounding_box_coordinates']
             
-            # Find matching plate for this person
-            matched_plate = self.find_matching_plate(person_box, plate_boxes)
+            # Find all valid plates for this person
+            valid_plates = []
+            for plate_box in available_plates:
+                if (self.is_plate_below_person(person_box, plate_box) and 
+                    self.is_horizontally_aligned(person_box, plate_box)):
+                    distance = self.calculate_distance(person_box, plate_box)
+                    valid_plates.append({
+                        'plate': plate_box,
+                        'distance': distance
+                    })
+            
+            # Store best match for this person
+            if valid_plates:
+                best_match = min(valid_plates, key=lambda x: x['distance'])
+                person_plate_distances.append({
+                    'person': person,
+                    'plate': best_match['plate'],
+                    'distance': best_match['distance']
+                })
+            else:
+                person_plate_distances.append({
+                    'person': person,
+                    'plate': None,
+                    'distance': float('inf')
+                })
+        
+        # Sort by distance (closest matches first) to do greedy assignment
+        person_plate_distances.sort(key=lambda x: x['distance'])
+        
+        # Assign plates greedily (closest person gets the plate)
+        assigned_plates = set()
+        
+        for match in person_plate_distances:
+            person = match['person']
+            plate = match['plate']
+            
+            # Check if this plate was already assigned
+            if plate is not None:
+                plate_key = tuple(plate)  # Convert to hashable type
+                if plate_key in assigned_plates:
+                    # Plate already taken, mark as no match
+                    plate = None
+                else:
+                    assigned_plates.add(plate_key)
             
             # Add plate info to person record
             person_with_plate = person.copy()
-            person_with_plate['matched_plate'] = matched_plate
-            person_with_plate['plate_matched'] = matched_plate is not None
+            person_with_plate['matched_plate'] = plate
+            person_with_plate['plate_matched'] = plate is not None
             
             results.append(person_with_plate)
         
