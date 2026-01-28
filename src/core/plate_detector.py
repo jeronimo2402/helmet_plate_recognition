@@ -18,7 +18,7 @@ class PlateDetector:
         self, 
         path_to_model: str = 'models/plate_model.pt',
         device: str = 'cpu',
-        confidence_threshold: float = 0.25
+        confidence_threshold: float = 0.5
     ):
         """
         Initialize the plate detector.

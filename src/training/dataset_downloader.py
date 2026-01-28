@@ -28,9 +28,9 @@ class DatasetDownloader:
     
     def download_helmet_dataset(
         self, 
-        workspace: str = "helmet-wparg",
-        project: str = "helmet-detection-0xjjk-qsh2v",
-        version: int = 1,
+        workspace: str = "workspace-ikb1n",
+        project: str = "helmet-detection-0xjjk-pdaew",
+        version: int = 2,
         output_format: str = "yolov8",
         save_path: Optional[str] = None
     ) -> str:
@@ -155,7 +155,7 @@ class DatasetDownloader:
         self,
         workspace: str = "workspace-ikb1n",
         project: str = "number-plate-xtpue-elloc",
-        version: int = 1,
+        version: int = 2,
         output_format: str = "yolov8",
         save_path: Optional[str] = None
     ) -> str:

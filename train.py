@@ -222,8 +222,8 @@ def main():
         print(f"   Best: {results['plate']['best_model_path']}")
         print(f"   Last: {results['plate']['last_model_path']}")
     
-    if args.model in ['helmet', 'both']:
-        print("\n📊 Analyzing Helmet Detector Training...")
+    if args.mode in ['helmet', 'both']:
+        print("\n Analyzing Helmet Detector Training...")
         helmet_csv = Path(args.runs_dir) / 'helmet_detector' / 'results.csv'
         if helmet_csv.exists():
             analyze_training(
@@ -231,10 +231,10 @@ def main():
                 str(Path(args.runs_dir) / 'helmet_detector' / 'analysis')
             )
         else:
-            print(f"⚠️  Helmet results not found: {helmet_csv}")
+            print(f"  Helmet results not found: {helmet_csv}")
     
-    if args.model in ['plate', 'both']:
-        print("\n📊 Analyzing Plate Detector Training...")
+    if args.mode in ['plate', 'both']:
+        print("\n Analyzing Plate Detector Training...")
         plate_csv = Path(args.runs_dir) / 'plate_detector' / 'results.csv'
         if plate_csv.exists():
             analyze_training(
@@ -242,7 +242,7 @@ def main():
                 str(Path(args.runs_dir) / 'plate_detector' / 'analysis')
             )
         else:
-            print(f"⚠️  Plate results not found: {plate_csv}")
+            print(f"  Plate results not found: {plate_csv}")
 
     print("\n Next steps:")
     print("   1. Copy trained models to models/ directory:")
