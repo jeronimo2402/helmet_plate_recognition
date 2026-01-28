@@ -43,7 +43,7 @@ class ImageAnnotator:
         label: str,
         color: Tuple[int, int, int],
         thickness: int = 3,
-        font_scale: float = 0.8
+        font_scale: float = 0.7
     ) -> None:
         """Draw a bounding box with a label on the image."""
         x1, y1, x2, y2 = int(box[0]), int(box[1]), int(box[2]), int(box[3])
@@ -81,7 +81,7 @@ class ImageAnnotator:
 
         # Draw background for text
         (text_width, text_height), _ = cv2.getTextSize(
-            plate_text, cv2.FONT_HERSHEY_SIMPLEX, 1.0, 3
+            plate_text, cv2.FONT_HERSHEY_SIMPLEX, 0.5, 2
         )
         cv2.rectangle(
             image,
@@ -94,7 +94,7 @@ class ImageAnnotator:
         # Draw text
         cv2.putText(
             image, plate_text, (x1 + 5, y2 + text_height + 10),
-            cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 0, 0), 3
+            cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 2
         )
 
     def _draw_connecting_line(

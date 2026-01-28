@@ -111,8 +111,8 @@ def main():
     )
     
     spatial_matcher = SpatialMatcher(
-        horizontal_threshold=200,
-        vertical_overlap_threshold=50
+        horizontal_threshold=140,
+        vertical_overlap_threshold=90
     )
     
     image_processor = ImageProcessor(

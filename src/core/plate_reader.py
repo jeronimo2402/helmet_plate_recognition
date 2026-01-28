@@ -16,7 +16,7 @@ class PlateReader:
         self, 
         supported_languages: List[str] = None,
         gpu: bool = False,
-        min_confidence: float = 0.25
+        min_confidence: float = 0.2
     ):
         """
         Initialize the plate text reader.

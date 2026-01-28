@@ -54,7 +54,7 @@ def load_models():
     plate_detector = PlateDetector(
         'models/plate_model.pt',
         device='cuda',
-        confidence_threshold=0.25
+        confidence_threshold=0.5
     )
 
     plate_reader = PlateReader(
@@ -63,8 +63,8 @@ def load_models():
     )
 
     spatial_matcher = SpatialMatcher(
-        horizontal_threshold=200,
-        vertical_overlap_threshold=50
+        horizontal_threshold=140,
+        vertical_overlap_threshold=100
     )
 
     image_processor = ImageProcessor(
